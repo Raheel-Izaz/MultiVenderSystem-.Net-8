@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="MultiVender.Application/MultiVender.Application.csproj" />
+  <Project Path="MultiVender.Domain/MultiVender.Domain.csproj" />
+  <Project Path="MultiVender.Infrastructure/MultiVender.Infrastructure.csproj" />
+  <Project Path="MultiVender.Web/MultiVender.Web.csproj" />
+</Solution>
