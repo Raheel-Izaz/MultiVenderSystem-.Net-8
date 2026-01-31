@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using MultiVender.Application.Interfaces;
+using MultiVender.Application.Services;
 using MultiVender.Infrastructure.Data;
 using MultiVender.Infrastructure.Repository;
+using MultiVender.Infrastructure.Repository.Services;
 
 namespace MultiVender.Web
 {
@@ -19,6 +21,7 @@ namespace MultiVender.Web
             });
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IVendorService, VendorService>();
 
             var app = builder.Build();
 

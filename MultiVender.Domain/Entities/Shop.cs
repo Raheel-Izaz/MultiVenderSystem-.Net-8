@@ -14,6 +14,7 @@ namespace MultiVender.Domain.Entities
         public int VendorId { get; set; }
         public Vendor Vendor { get; set; }
 
+        public bool isActive { get; set; } = true;
         public ICollection<Product> Products { get; set; }
     }
 }

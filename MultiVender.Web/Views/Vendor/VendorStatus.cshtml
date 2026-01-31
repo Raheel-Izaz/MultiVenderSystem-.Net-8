@@ -1,0 +1,19 @@
+﻿@model MultiVender.Domain.Entities.Vendor
+
+@{
+    ViewData["Title"] = "Vendor Status";
+}
+
+<h2>Vendor Status</h2>
+
+<p><strong>User ID:</strong> @Model.UserId</p>
+<p><strong>Status:</strong> @Model.Status</p>
+
+@if (Model.Status == MultiVender.Domain.Entities.VendorStatus.Pending)
+{
+    <p>Your application is pending approval.</p>
+}
+else if (Model.Status == MultiVender.Domain.Entities.VendorStatus.Approved)
+{
+    <p>Congratulations! Your application has been approved.</p>
+}

@@ -9,5 +9,9 @@ namespace MultiVender.Domain.Entities
     public class Category : BaseEntity
     {
         public string Name{ get; set; }
+
+        public int ShopId { get; set; }
+        public Shop? Shop { get; set; }
+
     }
 }

@@ -1,30 +1,32 @@
 ﻿using MultiVender.Application.Interfaces;
+using MultiVender.Application.Services;
 using MultiVender.Infrastructure.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MultiVender.Infrastructure.Repository.Services;
 
 namespace MultiVender.Infrastructure.Repository
 {
     public class UnitOfWork : IUnitOfWork
     {
         private readonly ApplicationDbContext _context;
-        public IProductRepository Product { get; private set; }
+	    public IProductRepository Products { get; private set; }
+	    public ICategoryRepository Categories { get; private set; }
+	    public IVendorRepository Vendors { get; private set; }
+	    public IUserRepository Users { get; private set; }
+	    public IShopRepository Shops { get; private set; }
 
-        public ICategoryRepository Category { get; private set; }
+	    public UnitOfWork(ApplicationDbContext context)
+	    {
+	        _context = context;
+	        Products = new ProductReposotory(_context);
+	        Categories = new CategoryRepository(_context);
+	        Vendors = new VendorRepository(_context);
+	        Users = new UserRepository(_context);
+	        Shops = new ShopRepository(_context);
+	    }
 
-        public UnitOfWork(ApplicationDbContext context)
+        public async Task SaveAsync()
         {
-            _context = context;
-            Product = new ProductReposotory(_context);
-            Category = new CategoryRepository(_context);
-        }
-
-        public Task SaveAsync()
-        {
-            throw new NotImplementedException();
+			await _context.SaveChangesAsync();
         }
     }
 }

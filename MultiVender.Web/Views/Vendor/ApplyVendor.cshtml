@@ -1,0 +1,13 @@
+﻿@{
+    ViewData["Title"] = "Apply as Vendor";
+}
+
+<h2>Apply as Vendor</h2>
+
+<form asp-action="Apply" method="post">
+    <div class="form-group">
+        <label>User ID</label>
+        <input type="number" name="userId" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-primary mt-2">Submit Application</button>
+</form>
