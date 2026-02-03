@@ -19,6 +19,8 @@ namespace MultiVender.Web.Controllers
             return View();
         }
 
+
+
         // GET: Admin/PendingVendors
         public async Task<IActionResult> PendingVendors()
         {
@@ -47,6 +49,83 @@ namespace MultiVender.Web.Controllers
                 .ToList();
 
             return View(approvedVendors);
+        }
+
+        // GET: Admin/Categories
+        public async Task<IActionResult> Categories()
+        {
+            var categories = await _unitOfWork.Categories.GetAllAsync();
+            return View(categories);
+        }
+
+        // GET: Admin/CreateCategory
+        public IActionResult CreateCategory()
+        {
+            return View();
+        }
+
+        // POST: Admin/CreateCategory
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateCategory(Category category)
+        {
+            if (ModelState.IsValid)
+            {
+                await _unitOfWork.Categories.AddAsync(category);
+                await _unitOfWork.SaveAsync();
+                return RedirectToAction(nameof(Categories));
+            }
+            return View(category);
+        }
+
+        // GET: Admin/EditCategory/5
+        public async Task<IActionResult> EditCategory(int id)
+        {
+            var category = await _unitOfWork.Categories.GetAsync(id);
+            if (category == null)
+            {
+                return NotFound();
+            }
+            return View(category);
+        }
+
+        // POST: Admin/EditCategory/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditCategory(Category category)
+        {
+            if (ModelState.IsValid)
+            {
+                _unitOfWork.Categories.Update(category);
+                await _unitOfWork.SaveAsync();
+                return RedirectToAction(nameof(Categories));
+            }
+            return View(category);
+        }
+
+        // GET: Admin/DeleteCategory/5
+        public async Task<IActionResult> DeleteCategory(int id)
+        {
+            var category = await _unitOfWork.Categories.GetAsync(id);
+            if (category == null)
+            {
+                return NotFound();
+            }
+            return View(category);
+        }
+
+        // POST: Admin/DeleteCategory/5
+        [HttpPost, ActionName("DeleteCategory")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteCategoryConfirmed(int id)
+        {
+            var category = await _unitOfWork.Categories.GetAsync(id);
+            if (category != null)
+            {
+                _unitOfWork.Categories.Remove(category);
+                await _unitOfWork.SaveAsync();
+            }
+            return RedirectToAction(nameof(Categories));
         }
     }
 }

@@ -19,7 +19,11 @@ namespace MultiVender.Infrastructure.Repository
 
         public void Update(Category category)
         {
-            throw new NotImplementedException();
+            var categ = _context.Categories.Find(category.Id);
+            if (categ != null)
+            {
+                categ.Name = category.Name;
+            }
         }
     }
 }
