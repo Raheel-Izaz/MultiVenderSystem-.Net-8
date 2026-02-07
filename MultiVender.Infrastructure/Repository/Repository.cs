@@ -27,9 +27,16 @@ namespace MultiVender.Infrastructure.Repository
             await _dbSet.AddAsync(entity);
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter)
         {
-           return await _dbSet.ToListAsync();
+            IQueryable<T> query = _dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            return await query.ToListAsync();
         }
 
         public async Task<T> GetAsync(int id)

@@ -1,0 +1,30 @@
+﻿@model Shop
+
+<div class="container mt-4">
+    <h2 class="mb-3">My Shop</h2>
+
+    @if (Model == null)
+    {
+        <div class="alert alert-warning">
+            You have not created a shop yet.
+        </div>
+
+        <a asp-action="CreateShop" class="btn btn-primary">
+            Create Shop
+        </a>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">@Model.ShopName</h4>
+                <p class="card-text">@Model.Description</p>
+
+                <a asp-action="EditShop" asp-route-id="@Model.Id"
+                   class="btn btn-secondary">
+                    Edit Shop
+                </a>
+            </div>
+        </div>
+    }
+</div>
