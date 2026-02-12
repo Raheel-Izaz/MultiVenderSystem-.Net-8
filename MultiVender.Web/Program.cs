@@ -1,50 +1,94 @@
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MultiVender.Application.Interfaces;
+using MultiVender.Application.IServices;
 using MultiVender.Application.Services;
 using MultiVender.Infrastructure.Data;
 using MultiVender.Infrastructure.Repository;
 using MultiVender.Infrastructure.Repository.Services;
+using System.Text;
 
-namespace MultiVender.Web
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllersWithViews();
+builder.Services.AddDbContext<ApplicationDbContext>(option =>
 {
-    public class Program
+    option.UseSqlServer(builder.Configuration.GetConnectionString("dbcs"));
+});
+
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IVendorService, VendorService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        public static void Main(string[] args)
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            var builder = WebApplication.CreateBuilder(args);
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
 
-            // Add services to the container.
-            builder.Services.AddControllersWithViews();
-            builder.Services.AddDbContext<ApplicationDbContext>(option =>
+            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+            ValidAudience = builder.Configuration["JwtSettings:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]!)
+            )
+        };
+
+        // THIS IS THE IMPORTANT PART FOR MVC
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
             {
-                option.UseSqlServer(builder.Configuration.GetConnectionString("dbcs"));
-            });
+                var token = context.Request.Cookies["jwt"];
 
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IVendorService, VendorService>();
+                if (!string.IsNullOrEmpty(token))
+                {
+                    context.Token = token;
+                }
 
-            var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            if (!app.Environment.IsDevelopment())
-            {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
+                return Task.CompletedTask;
             }
+        };
+    });
 
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
+builder.Services.AddAuthorization();
 
-            app.UseRouting();
 
-            app.UseAuthorization();
+var app = builder.Build();
 
-            app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider
+        .GetRequiredService<ApplicationDbContext>();
 
-            app.Run();
-        }
-    }
+    await AdminSeeder.SeedAdminAsync(context);
 }
+
+
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.Run();

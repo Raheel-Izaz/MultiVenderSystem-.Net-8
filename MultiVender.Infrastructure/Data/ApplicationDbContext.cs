@@ -1,10 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MultiVender.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MultiVender.Infrastructure.Data
 {
@@ -18,6 +14,8 @@ namespace MultiVender.Infrastructure.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Shop> Shops { get; set; }
         public DbSet<Vendor> Vendors { get; set; }
+
+        public DbSet<Role> Roles { get; set; }
         public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -29,6 +27,14 @@ namespace MultiVender.Infrastructure.Data
                            .WithMany()
                            .HasForeignKey(p => p.ShopId)
                            .OnDelete(DeleteBehavior.Restrict); // This breaks the cycle
+
+            modelBuilder.Entity<Role>().HasData(
+                    new Role { Id = 1, RoleName = "Admin" },
+                    new Role { Id = 2, RoleName = "Vendor" },
+                    new Role { Id = 3, RoleName = "User" }
+
+            );
+
         }
 
     }

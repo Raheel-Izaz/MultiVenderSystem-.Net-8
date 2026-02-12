@@ -1,0 +1,14 @@
+﻿@{
+    ViewData["Title"] = "Apply as Vendor";
+}
+
+<h2>Apply as Vendor</h2>
+@if (User.Identity.IsAuthenticated && User.IsInRole("User"))
+{
+    <form action="ApplyVendorPost" method="post">
+        <button type="submit" class="btn btn-primary">
+            Apply for Vendor
+        </button>
+    </form>
+  
+}

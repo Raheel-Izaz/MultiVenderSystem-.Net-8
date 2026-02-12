@@ -13,8 +13,9 @@ namespace MultiVender.Infrastructure.Repository
 	    public IVendorRepository Vendors { get; private set; }
 	    public IUserRepository Users { get; private set; }
 	    public IShopRepository Shops { get; private set; }
+	    public IRoleRepository Roles { get; private set; }
 
-	    public UnitOfWork(ApplicationDbContext context)
+        public UnitOfWork(ApplicationDbContext context)
 	    {
 	        _context = context;
 	        Products = new ProductReposotory(_context);
@@ -22,7 +23,8 @@ namespace MultiVender.Infrastructure.Repository
 	        Vendors = new VendorRepository(_context);
 	        Users = new UserRepository(_context);
 	        Shops = new ShopRepository(_context);
-	    }
+	        Roles = new RoleRepository(_context);
+        }
 
         public async Task SaveAsync()
         {

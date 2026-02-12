@@ -33,6 +33,11 @@ namespace MultiVender.Infrastructure.Repository.Services
             // 3. Approve vendor
             vendor.Status = VendorStatus.Approved;
 
+            var user = await _unitOfWork.Users.GetAsync(vendor.UserId);
+            var vendorRole = (await _unitOfWork.Roles
+                .GetAllAsync(r => r.RoleName == "Vendor")).First();
+            user.RoleId = vendorRole.Id;
+            user.IsVendor = true;
             // 4. Create shop
             var shop = new Shop
             {
@@ -43,10 +48,6 @@ namespace MultiVender.Infrastructure.Repository.Services
             };
 
             await _unitOfWork.Shops.AddAsync(shop);
-
-            // 5. Update user vendor flag
-            var user = await _unitOfWork.Users.GetAsync(vendor.UserId);
-            user.IsVendor = true;
 
             // 6. Save changes
             await _unitOfWork.SaveAsync();

@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MultiVender.Application.Interfaces;
 using MultiVender.Domain.Entities;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace MultiVender.Web.Controllers
 {
+    [Authorize(Roles ="Vendor")]
     public class VendorController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -14,9 +17,20 @@ namespace MultiVender.Web.Controllers
             _unitOfWork = unitOfWork;
         }
 
-        private int GetVendorId()
+        private async Task<int> GetVendorId()
         {
-            return 3;
+            
+
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var vendor = (await _unitOfWork.Vendors
+                .GetAllAsync(v => v.UserId == userId))
+                .FirstOrDefault();
+
+            if (vendor == null)
+                throw new Exception("Vendor not found");
+
+            return vendor.Id;
         }
 
         public IActionResult Index()
@@ -31,45 +45,45 @@ namespace MultiVender.Web.Controllers
         }
 
         // POST: Vendor/Apply
-        [HttpPost]
-        public async Task<IActionResult> Apply(int userId)
-        {
-            // check if vendor already exists for user
-            var existingVendors = await _unitOfWork.Vendors.GetAllAsync();
-            if (existingVendors.Any(v => v.UserId == userId))
-            {
-                return BadRequest("Vendor already exists for this user.");
-            }
+        //[HttpPost]
+        //public async Task<IActionResult> Apply(int userId)
+        //{
+        //    // check if vendor already exists for user
+        //    var existingVendors = await _unitOfWork.Vendors.GetAllAsync();
+        //    if (existingVendors.Any(v => v.UserId == userId))
+        //    {
+        //        return BadRequest("Vendor already exists for this user.");
+        //    }
 
-            var vendor = new Vendor
-            {
-                UserId = userId,
-                Status = VendorStatus.Pending
-            };
+        //    var vendor = new Vendor
+        //    {
+        //        UserId = userId,
+        //        Status = VendorStatus.Pending
+        //    };
 
-            await _unitOfWork.Vendors.AddAsync(vendor);
-            await _unitOfWork.SaveAsync();
+        //    await _unitOfWork.Vendors.AddAsync(vendor);
+        //    await _unitOfWork.SaveAsync();
 
-            return RedirectToAction(nameof(Status), new { userId });
-        }
+        //    return RedirectToAction(nameof(Status), new { userId });
+        //}
 
         // GET: Vendor/Status
-        public async Task<IActionResult> Status(int userId)
-        {
-            var vendors = await _unitOfWork.Vendors.GetAllAsync();
-            var vendor = vendors.FirstOrDefault(v => v.UserId == userId);
+        //public async Task<IActionResult> Status(int userId)
+        //{
+        //    var vendors = await _unitOfWork.Vendors.GetAllAsync();
+        //    var vendor = vendors.FirstOrDefault(v => v.UserId == userId);
 
-            if (vendor == null)
-                return NotFound();
+        //    if (vendor == null)
+        //        return NotFound();
 
-            return View(vendor);
-        }
+        //    return View(vendor);
+        //}
 
         // Vendor Shop Management
 
         public async Task<IActionResult> Shop()
         {
-            int vendorId = GetVendorId();
+            int vendorId = await GetVendorId();
 
             var shop = (await _unitOfWork.Shops
                 .GetAllAsync(s => s.VendorId == vendorId))
@@ -90,7 +104,7 @@ namespace MultiVender.Web.Controllers
             if (!ModelState.IsValid)
                 return View(shop);
 
-            shop.VendorId = GetVendorId();
+            shop.VendorId = await GetVendorId();
 
             await _unitOfWork.Shops.AddAsync(shop);
             await _unitOfWork.SaveAsync();
@@ -101,7 +115,7 @@ namespace MultiVender.Web.Controllers
         // Edit shop
         public async Task<IActionResult> EditShop(int id)
         {
-            int vendorId = GetVendorId();
+            int vendorId = await GetVendorId();
             var shop = await _unitOfWork.Shops.GetAsync(id);
 
             if (shop == null || shop.VendorId != vendorId)
@@ -125,7 +139,7 @@ namespace MultiVender.Web.Controllers
         // List vendor products
         public async Task<IActionResult> Products()
         {
-            int vendorId = GetVendorId();
+            int vendorId = await GetVendorId();
 
             var shop = (await _unitOfWork.Shops
                 .GetAllAsync(s => s.VendorId == vendorId))
@@ -150,7 +164,7 @@ namespace MultiVender.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateProduct(Product product)
         {
-            int vendorId = GetVendorId();
+            int vendorId =await GetVendorId();
 
             var shop = (await _unitOfWork.Shops
                 .GetAllAsync(s => s.VendorId == vendorId))
@@ -173,7 +187,7 @@ namespace MultiVender.Web.Controllers
         // Edit product
         public async Task<IActionResult> EditProduct(int id)
         {
-            int vendorId = GetVendorId();
+            int vendorId = await GetVendorId();
 
             var product = await _unitOfWork.Products.GetAsync(id);
             if (product == null)

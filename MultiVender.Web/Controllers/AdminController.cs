@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MultiVender.Application.Interfaces;
 using MultiVender.Application.Services;
 using MultiVender.Domain.Entities;
 
 namespace MultiVender.Web.Controllers
 {
+    [Authorize(Roles="Admin")]
     public class AdminController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;

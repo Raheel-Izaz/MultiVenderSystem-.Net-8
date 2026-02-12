@@ -13,7 +13,8 @@ namespace MultiVender.Application.Interfaces
 	    ICategoryRepository Categories{ get; }
 	    IVendorRepository Vendors { get; }
 	    IUserRepository Users { get; }
-	    IShopRepository Shops { get; }
+	    IRoleRepository Roles { get; }
+        IShopRepository Shops { get; }
         Task SaveAsync();
     }
 }

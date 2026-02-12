@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace MultiVender.Application.Interfaces
 {
-    public interface IUserRepository : IRepository<User>
+    public interface IRoleRepository : IRepository<Role>
     {
-            void Update(User user);
+        void Update(Role role);
     }
 }

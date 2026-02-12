@@ -9,15 +9,15 @@ using System.Threading.Tasks;
 
 namespace MultiVender.Infrastructure.Repository
 {
-    public class UserRepository : Repository<User>, IUserRepository
+    public class RoleRepository : Repository<Role>, IRoleRepository
     {
         private readonly ApplicationDbContext _context;
-        public UserRepository(ApplicationDbContext context) : base(context)
+        public RoleRepository(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }
 
-        public void Update(User user)
+        public void Update(Role role)
         {
             throw new NotImplementedException();
         }
